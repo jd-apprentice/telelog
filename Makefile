@@ -5,11 +5,7 @@ all: build test
 test:
 
 	@echo "Running tests... 🧪"
-	for file in test/*test.sh; do \
-		echo "Running test $$file" \
-		chmod +x $$file \
-		./$$file
-	done
+	for file in tests/*test.sh; do echo "Running test $$file"; chmod +x $$file; ./$$file; done
 	@echo "All tests passed! 🎉"
 
 build:

@@ -4,6 +4,12 @@
 
 A simple interface to send message of files to telegram.
 
+## Pre-requisites 📦
+
+- Have `curl` installed.
+- Have a telegram bot.
+- Have the bot be part of a channel.
+
 ## Installation 🚀
 
 ```bash

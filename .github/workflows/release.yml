@@ -22,7 +22,7 @@ jobs:
     uses: jd-apprentice/jd-workflows/.github/workflows/linter.yml@main
     with:
       name: linter
-      runs_on: ubuntu-latest
+      runs-on: ubuntu-latest
 
   test:
     runs-on: ubuntu-latest

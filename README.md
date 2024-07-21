@@ -1,14 +1,18 @@
 # Telelog 📩
 
-![sample](assets/sample.png)
+<p align="center">
+  <img width="500" height="500" src="assets/telelog.png">
+</p>
 
-A simple interface to send message of files to telegram.
+A simple interface to send messages or files to telegram. The purpose of this is mostly have a centralized way to send messages or files to telegram events on my servers, but since I created it, I thought it would be nice to share it with the community.
+
+![sample](assets/sample.png)
 
 ## Pre-requisites 📦
 
-- Have `curl` installed.
-- Have a telegram bot.
-- Have the bot be part of a channel.
+- `curl` installed.
+- Telegram bot (Get it from [BotFather](https://core.telegram.org/bots#6-botfather)).
+- Bot is part of a channel.
 
 ## Installation 🚀
 

@@ -1,11 +1,14 @@
 #!/bin/bash
 ## Usage: telelog [flags] [content]
-### Designed to use with /bin/bash shell.
+### Dependencies: curl
 ### Send content to a Telegram channel from the command line.
 
 args=("$@")
-shell="bash"
-i=0
+shell=$(basename $SHELL)
+server_name=$(hostname)
+is_curl_installed=$(command -v curl)
+argument_iteration=0
+add_chat_and_token_message="Please add your chat_id and token to ~/.config/telelog/settings file."
 
 show_help() {
     echo ""
@@ -14,36 +17,59 @@ show_help() {
     echo "       --message, -m: Send a message to the channel."
     echo "       --file, -f: Send a file to the channel."
     echo "       --help, -h: Show this help message."
+    echo "       --set-chat_id: Set chat_id in the configuration file."
+    echo "       --set-token: Set token in the configuration file."
     echo ""
     echo "Example: telelog --message 'Hello, World!'"
     echo "Example: telelog --file /path/to/file"
     echo "Example: telelog --message 'Hello, World!' --file /path/to/file"
+    echo "Example: telelog --set-chat_id 123456789"
+    echo "Example: telelog --set-token 123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
     echo ""
 }
+
+has_next_arg() {
+    [ $((argument_iteration + 1)) -lt ${#args[@]} ]
+}
+
+display_curl_error() {
+    local message=$1
+
+    echo ""
+    echo "Status: $1"
+    echo "Reason: $(cat /tmp/telelog_error.log)"
+    rm /tmp/telelog_error.log
+    exit 1
+}
+
+if [ "$is_curl_installed" == "" ]; then
+    echo "Error: curl is not installed."
+    echo "Please install curl to use telelog."
+    exit 1
+fi
 
 if [ ${#args[@]} -eq 0 ]; then
     show_help
     exit 1
 fi
 
-source ~/.bashrc
-
-if [ -z "$chat_id" ]; then
-    read -p "Enter chat_id: " std_chat_id
-    if [[ "$shell" == "bash" ]]; then
-        echo "export chat_id=$std_chat_id" >> ~/.bashrc
-    fi
+if [ ! -f ~/.config/telelog/settings ]; then
+    mkdir -p ~/.config/telelog
+    touch ~/.config/telelog/settings
+    echo "$add_chat_and_token_message"
+    echo "You can get your chat_id from @username_to_id_bot and token from @BotFather."
+    exit 1
 fi
 
-if [ -z "$token" ]; then
-    read -p "Enter token: " std_token
-    if [[ "$shell" == "bash" ]]; then
-        echo "export token=$std_token" >> ~/.bashrc
-    fi
+chat_id_exists=$(cat ~/.config/telelog/settings | grep chat_id)
+token_exists=$(cat ~/.config/telelog/settings | grep token)
+
+if [ -z "$chat_id_exists" ] && [ -z "$token_exists" ]; then
+    echo "$add_chat_and_token_message"
+    exit 1
 fi
 
 for arg in "${args[@]}"; do
-    server_name=$(hostname)
     date=$(date +%F)
 
     if [ "$arg" == "--help" ] || [ "$arg" == "-h" ]; then
@@ -51,24 +77,90 @@ for arg in "${args[@]}"; do
     fi
 
     if [ "$arg" == "--message" ] || [ "$arg" == "-m" ]; then
-        if [ $((i + 1)) -lt ${#args[@]} ]; then
-            message=${args[$((i + 1))]}
+        if has_next_arg; then
+            message=${args[$((argument_iteration + 1))]}
+
+            if [[ "$message" == "--file" ]] || [[ "$message" == "-f" ]]; then
+                echo "You need to provide a message before the --file flag."
+                exit 1
+            fi
+
             echo "Message: $message"
-            curl -X POST -H "content-type: application/json" -d "{\"chat_id\": \"$chat_id\", \"text\": \"Date: $date\nMessage: $message\nServer: $server_name\", \"disable_notification\": true}" https://api.telegram.org/bot"$token"/sendMessage
+            curl -X POST -H "content-type: application/json" -d "{\"chat_id\": \"$chat_id\", \"text\": \"Date: $date\nMessage: $message\nServer: $server_name\", \"disable_notification\": true}" https://api.telegram.org/bot"$token"/sendMessage 2>/tmp/telelog_error.log
+
+            if [ -s /tmp/telelog_error.log ]; then
+                display_curl_error Failed to send the message.
+            fi
         else
             echo "Error: --message flag provided but no message found after it."
         fi
     fi
 
     if [ "$arg" == "--file" ] || [ "$arg" == "-f" ]; then
-        if [ $((i + 1)) -lt ${#args[@]} ]; then
-            file=${args[$((i + 1))]}
+        if has_next_arg; then
+            file=${args[$((argument_iteration + 1))]}
+
+            if [[ "$file" == "--message" ]] || [[ "$file" == "-m" ]]; then
+                echo "You need to provide a file before the --message flag."
+                exit 1
+            fi
+
             echo "File: $file"
-            curl -X POST -H "content-type: multipart/form-data" -F document=@"$file" -F chat_id="$chat_id" https://api.telegram.org/bot"$token"/sendDocument
+            curl -X POST -H "content-type: multipart/form-data" -F document=@"$file" -F chat_id="$chat_id" https://api.telegram.org/bot"$token"/sendDocument 2>/tmp/telelog_error.log
+
+            if [ -s /tmp/telelog_error.log ]; then
+                display_curl_error Failed to send the file.
+            fi
         else
             echo "Error: --file flag provided but no file found after it."
         fi
     fi
 
-    i=$((i + 1))
+    if [ "$arg" == "--set-chat_id" ]; then
+
+        chat_id_modified_message="Added/Modified chat_id in your configuration file."
+
+        current_chat_id=$(cat ~/.config/telelog/settings | grep chat_id | cut -d"'" -f2)
+    
+        if has_next_arg; then
+            chat_id=${args[$((argument_iteration + 1))]}
+
+            if [[ -z "$current_chat_id" ]]; then
+                echo "chat_id='$chat_id'" >> ~/.config/telelog/settings
+                echo "$chat_id_modified_message"
+                exit 1
+            fi
+
+            sed -i "s/$current_chat_id/$chat_id/g" ~/.config/telelog/settings
+            echo "$chat_id_modified_message"
+            exit 1
+        else
+            echo "Error: --set-chat_id flag provided but no chat_id found after it."
+        fi
+    fi
+
+    if [ "$arg" == "--set-token" ]; then
+
+        token_modified_message="Added/Modified token in your configuration file."
+
+        current_token=$(cat ~/.config/telelog/settings | grep token | cut -d"'" -f2)
+    
+        if has_next_arg; then
+            token=${args[$((argument_iteration + 1))]}
+
+            if [[ -z "$current_token" ]]; then
+                echo "token='$token'" >> ~/.config/telelog/settings
+                echo "$token_modified_message"
+                exit 1
+            fi
+
+            sed -i "s/$current_token/$token/g" ~/.config/telelog/settings
+            echo "$token_modified_message"
+            exit 1
+        else
+            echo "Error: --set-token flag provided but no token found after it."
+        fi
+    fi
+
+    argument_iteration=$((argument_iteration + 1))
 done

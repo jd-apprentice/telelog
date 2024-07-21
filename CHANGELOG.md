@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for zsh, fish, etc.
+- Validation to see if curl is installed
+
+### Changed
+
+- Logic to read configuration from file
+- Logic to ask for token and chat_id
+- Logic to validate value when an argument is passed
+
+### Fixed
+
+- Check if a value passed after an argument is another argument
+
 ## 0.1.0 - 2024-07-21
 
 ### Added

@@ -33,7 +33,7 @@ pipeline:
 	@echo "--help test passed. ✅"
 	
 	./lib/$(app_name) --set-token '123' 
-	cat ~/.config/$(app_name)/settings | grep token
+	cat ~/.config/$(app_name)/settings | grep 'token=123'
 	@echo "--set-token test passed. ✅"
 
 	./lib/$(app_name) --message 'pepon gordo'

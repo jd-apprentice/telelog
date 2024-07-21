@@ -128,12 +128,12 @@ for arg in "${args[@]}"; do
             if [[ -z "$current_chat_id" ]]; then
                 echo "chat_id='$chat_id'" >> ~/.config/telelog/settings
                 echo "$chat_id_modified_message"
-                exit 1
+                exit 0
             fi
 
             sed -i "s/$current_chat_id/$chat_id/g" ~/.config/telelog/settings
             echo "$chat_id_modified_message"
-            exit 1
+            exit 0
         else
             echo "Error: --set-chat_id flag provided but no chat_id found after it."
         fi
@@ -151,12 +151,12 @@ for arg in "${args[@]}"; do
             if [[ -z "$current_token" ]]; then
                 echo "token='$token'" >> ~/.config/telelog/settings
                 echo "$token_modified_message"
-                exit 1
+                exit 0
             fi
 
             sed -i "s/$current_token/$token/g" ~/.config/telelog/settings
             echo "$token_modified_message"
-            exit 1
+            exit 0
         else
             echo "Error: --set-token flag provided but no token found after it."
         fi

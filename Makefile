@@ -30,9 +30,10 @@ pipeline:
 	@echo "Skipping Building..."
 	chmod +x lib/$(app_name)
 	./lib/$(app_name) --help
-	
 	@echo "--help test passed. ✅"
-	./lib/$(app_name) --set-token '123'; cat ~/.config/$(app_name)/settings | grep token
+	
+	./lib/$(app_name) --set-token '123' 
+	cat ~/.config/$(app_name)/settings | grep token
 	@echo "--set-token test passed. ✅"
 
 	./lib/$(app_name) --message 'pepon gordo'

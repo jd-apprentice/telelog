@@ -1,6 +1,6 @@
 #!/bin/bash
 
-output=$(telelog --help)
+output=$(telelog --help || ./lib/telelog --help)
 
 if echo "$output" | grep -i "Usage:"; then
   echo "Should display help message"

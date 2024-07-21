@@ -22,12 +22,10 @@ pipeline:
 	@echo "Running pipeline... 🚀"
 	@echo "Creating settings file..."
 
-	if [ ! -f ~/.config/telelog/settings ]; then
-		mkdir -p ~/.config/telelog
-		touch ~/.config/telelog/settings
-		echo "token=123" >> ~/.config/telelog/settings
-		echo "chat_id=123" >> ~/.config/telelog/settings
-	fi
+	mkdir -p ~/.config/telelog
+	touch ~/.config/telelog/settings
+	echo "token=123" >> ~/.config/telelog/settings
+	echo "chat_id=123" >> ~/.config/telelog/settings
 
 	@echo "Skipping Building..."
 	chmod +x lib/$(app_name)
@@ -47,4 +45,4 @@ pipeline:
 
 	./lib/$(app_name) --message 'pepon gordo' --file test.log
 	@echo "--message and file test passed. ✅"
-	
+

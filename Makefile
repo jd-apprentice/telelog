@@ -6,9 +6,9 @@ test:
 
 	@echo "Running tests... 🧪"
 	for file in test/*test.sh; do \
-		echo "Running test $$file"; \
-		chmod +x $$file; \
-		./$$file;
+		echo "Running test $$file" \
+		chmod +x $$file \
+		./$$file
 	done
 	@echo "All tests passed! 🎉"
 

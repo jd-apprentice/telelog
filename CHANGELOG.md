@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CHANGELOG.md
 - First approach for `telelog` script
 - Test + Release workflow
 - Makefile for building and testing
+- Shellcheck on pipeline
 
 ### Fixed
 

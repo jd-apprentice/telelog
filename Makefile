@@ -3,9 +3,6 @@ app_name ?= telelog
 all: build test
 
 test:
-	@echo "Preparing variables... 🧪"
-	export token="123"
-	export chat_id="123"
 	@echo "Running tests... 🧪"
 	./test.sh --message 'pepon gordo'
 	@echo "--message test passed. ✅"
